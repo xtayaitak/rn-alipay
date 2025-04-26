@@ -1,6 +1,6 @@
 # react-native-alipay
 
-latest alipay
+最新版的ReactNative支付宝支付, 支付android和ios
 
 ## Installation
 
@@ -12,11 +12,12 @@ npm install react-native-alipay
 
 
 ```js
-import { multiply } from 'react-native-alipay';
+import { pay } from 'react-native-alipay';
 
 // ...
 
-const result = multiply(3, 7);
+const result = pay(orderStr);
+
 ```
 
 
