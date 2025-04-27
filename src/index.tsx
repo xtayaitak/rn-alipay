@@ -8,3 +8,7 @@ export function multiply(a: number, b: number): number {
 export function pay(orderInfo: string): Promise<PayResult> {
   return Alipay.pay(orderInfo);
 }
+
+export function setScheme(scheme: string): void {
+  return Alipay.setScheme(scheme);
+}

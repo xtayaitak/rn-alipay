@@ -10,6 +10,7 @@ export interface PayResult {
 export interface Spec extends TurboModule {
   multiply(a: number, b: number): number;
   pay(orderInfo: string): Promise<PayResult>;
+  setScheme(scheme: string): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Alipay');
