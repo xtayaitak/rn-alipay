@@ -57,7 +57,11 @@ class AlipayModule(reactContext: ReactApplicationContext) :
             promise.resolve(errorMap)
         }
     }
-}
+  }
+
+  override fun setScheme(scheme: String) {
+    // TODO: Implement scheme setting logic if needed
+  }
 
   companion object {
     const val NAME = "Alipay"
