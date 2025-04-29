@@ -32,8 +32,8 @@ class AlipayModule(reactContext: ReactApplicationContext) :
         return
     }
 
-    // 在子线程中调用支付接口
-    Executors.newSingleThreadExecutor().execute {
+    // 按照阿里云官方文档实现 - 必须异步调用
+    val payRunnable = Runnable {
         try {
             val payTask = PayTask(activity)
             val result = payTask.payV2(orderInfo, true)
@@ -57,6 +57,10 @@ class AlipayModule(reactContext: ReactApplicationContext) :
             promise.resolve(errorMap)
         }
     }
+
+    // 启动支付线程
+    val payThread = Thread(payRunnable)
+    payThread.start()
   }
 
   override fun setScheme(scheme: String) {
