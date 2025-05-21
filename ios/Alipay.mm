@@ -38,6 +38,7 @@ RCT_EXPORT_MODULE()
 {
     NSString *aURLString = [aNotification userInfo][@"url"];
     NSURL *aURL = [NSURL URLWithString:aURLString];
+    NSLog(@"handleOpenURL: %@",aURLString);//
     if ([aURL.host isEqualToString:@"safepay"]) {
         __weak __typeof__(self) weakSelf = self;
         // 处理支付宝支付结果
@@ -80,17 +81,24 @@ RCT_EXPORT_MODULE()
 //}
 
 - (void)pay:(NSString *)orderInfo resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-    // 存储resolve回调以便在handleOpenURL中使用
+    // 立即存储 resolve 回调（线程安全）
     self.payOrderResolve = resolve;
-    
-    NSString *scheme = _appScheme ?: @"zhikeonline"; // 使用存储的scheme或默认值
-    // 调用支付宝SDK处理支付
-    [[AlipaySDK defaultService] payOrder:orderInfo fromScheme:scheme callback:^(NSDictionary *resultDic) {
-        // 此回调在app被杀死后重新启动时不会触发，所以我们也在handleOpenURL中处理
-        NSLog(@"payOrder callback result = %@", resultDic);
-        resolve(resultDic);
-    }];
+
+    NSString *scheme = _appScheme ?: @"zhikeonline";
+
+    __weak Alipay *weakSelf = self; // 用类名替代 typeof(self)
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[AlipaySDK defaultService] payOrder:orderInfo fromScheme:scheme callback:^(NSDictionary *resultDic) {
+            NSLog(@"payOrder callback result = %@", resultDic);
+            if (weakSelf && weakSelf.payOrderResolve) {
+                weakSelf.payOrderResolve(resultDic);
+                weakSelf.payOrderResolve = nil;
+            }
+        }];
+    });
 }
+
+
 
 - (void)setScheme:(NSString *)scheme {
     // Store the scheme globally for later use in the pay method
